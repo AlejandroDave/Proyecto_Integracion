@@ -1,0 +1,17 @@
+Proyecto de integración:
+Sistema web para la gestión y generación automática de resúmenes en expedientes clínicos.
+
+Notas 1ra Sesión 11/06/25:
+- Los resumenes inciiales se guardarán de forma automática. Los posteriores el paciente tendrá la opción de guardarlos si lo desea.
+- Se debe implementar nuevos parámetros conforme se avance en el proyecto para que se tenga mayor información del paciente.
+- Se debe buscar una alternativa a la generación de resumenes que no sea OpenAI debido a que este último cobra.
+
+Anotaciones:
+- Se planea implementar el proyecto en git para controlar las versiones.
+
+Librerias instaladas:
+- Flask
+- Transformers
+- Pytorch
+- DeepL
+- pymysql
