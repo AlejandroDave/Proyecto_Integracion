@@ -1,6 +1,6 @@
 from flask import Flask, jsonify
 import pymysql
-import data.database as db
+import backend.data.database as db
 
 app = Flask(__name__)
 

@@ -19,7 +19,7 @@ def conectar():
     return conexion
 
 
-
+conexion = conectar()
 
 # Funciones correspondiente a las consultas de las tablas
     # 1
@@ -41,7 +41,7 @@ def show_diagnosticos(conexion):
         diagnosticos = cursor.fetchall()
 
         '''for diagnostico in diagnosticos:
-            print('Doctor:',diagnostico[2],'\nDiagnostico:\n',diagnostico[3])
+            print(diagnostico)
             print('\n')'''
 
         return diagnosticos
@@ -56,7 +56,7 @@ def show_resumenes(conexion):
         return resumenes
 
 # show_usuarios(conexion)
-# show_diagnosticos(conexion)
+show_diagnosticos(conexion)
 
 
-# conexion.close()
+conexion.close()

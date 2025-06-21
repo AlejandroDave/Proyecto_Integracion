@@ -7,7 +7,7 @@ Notas 1ra Sesión 11/06/25:
 - Se debe buscar una alternativa a la generación de resumenes que no sea OpenAI debido a que este último cobra.
 
 Anotaciones:
-- Se planea implementar el proyecto en git para controlar las versiones.
+- Se planea implementar el proyecto en git para controlar las versiones. (IMPLEMENTADO)
 
 Librerias instaladas:
 - Flask
