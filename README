@@ -9,9 +9,13 @@ Notas 1ra Sesión 11/06/25:
 Anotaciones:
 - Se planea implementar el proyecto en git para controlar las versiones. (IMPLEMENTADO)
 
+21/06/25:
+- Crear rutas para usuarios y resumenes.
+- Hacer pruebas CRUD con postman.
+- Implementar herramienta de generacion de resumenes automaticos.
+
 Librerias instaladas:
-- Flask
-- Transformers
-- Pytorch
-- DeepL
-- pymysql
+- Flask             3.1.1
+- Transformers      4.52.4
+- DeepL             1.22.0
+- pymysql           1.1.1
