@@ -17,5 +17,5 @@ Anotaciones:
 Librerias instaladas:
 - Flask             3.1.1
 - Transformers      4.52.4
-- DeepL             1.22.0
+- qrcode            8.2
 - pymysql           1.1.1

@@ -30,8 +30,8 @@ CREATE TABLE usuario(
 
 CREATE TABLE diagnostico( 			   -- Esta tabla será consultada de forma de lectura por el usuario paciente, el usuario medico tendrá la posibilidad de crear nuevas entradas de datos en el sistema
 	id_diagnostico INT AUTO_INCREMENT, -- La llave primaria de esta tabla no tendrá relevancia puesto a que se buscará conforme el id del usuario o del médico
-    id_medico VARCHAR(10) NOT NULL,
-    id_usuario VARCHAR(10) NOT NULL,  
+    id_usuario VARCHAR(10) NOT NULL,
+    id_paciente VARCHAR(10) NOT NULL,  
     diagnostico VARCHAR(700),          
     PRIMARY KEY(id_diagnostico)
 );
@@ -67,3 +67,11 @@ VALUES
 ('draMeaLoba','dfnkgri452','Meana Alejandra De la Hoya','1990-05-17','m','Psicologia'),
 ('drNeotro24','fgr25242','Joel Meotro Neruda','1975-11-12','m','Otorrinolaringologo'),
 ('drHehe1231','sdfkjbd92929','Neoel Neneli Broazgi','1964-12-25','m','Ortopedia');
+
+SELECT * FROM diagnostico;
+
+INSERT INTO diagnostico(id_usuario,id_paciente,diagnostico)
+VALUES ('draHeart88','Gbral5334','Presento sintomas inciales de problemas cardiacos, se le receto medicacion correspondiente, dietas baja en grasas y ejercicio minimo tres veces a la semana');
+
+
+SELECT nombre, fecha_nacimiento, tipo_sangre FROM usuario WHERE id_usuario = 'draHeart88' AND u_password = 'ashdi24';
