@@ -9,13 +9,14 @@ Se crea una aplicación Flask cada que se ejecuta la función "crear_app" la cua
 
 def crear_app():
     app = Flask(__name__)
-¿
+
     app.register_blueprint(rutes.front_bp)
     app.register_blueprint(rutes.diagnosticos_bp)
     app.register_blueprint(rutes.usuarios_bp)
     app.register_blueprint(rutes.resumenes_bp)
     app.register_blueprint(rutes.login_bp)
     app.register_blueprint(rutes.diagnosticoInsert_bp)
+    app.register_blueprint(rutes.insertUsuario_bp)
 
     return app
 

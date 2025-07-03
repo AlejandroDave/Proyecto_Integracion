@@ -1,6 +1,8 @@
 from flask import Blueprint, jsonify, request
-import  backend.data.database as db
 from backend.clases.diagnostico import Diagnostico
+from backend.clases.usuario import Usuario
+import backend.data.database as db
+from datetime import datetime
 
 '''
 Utilizando los metodos Blueprint y jsonify se creara el enlace entre el servidor del backend y la base de datos.
@@ -18,7 +20,7 @@ usuarios_bp = Blueprint('usuarios', __name__)
 resumenes_bp = Blueprint('resumenes', __name__)
 login_bp = Blueprint('login',__name__)
 diagnosticoInsert_bp = Blueprint('insertDiag',__name__)
-
+insertUsuario_bp = Blueprint('insertUser',__name__)
 
 @front_bp.route('/',methods=['GET'])
 
@@ -108,6 +110,44 @@ def obtener_usuarios():
 
     except Exception as e:
         return jsonify({'error': str(e)}),500
+
+@insertUsuario_bp.route('/usuarios/entrada',methods=['POST'])
+
+def insertar_usuarios():
+
+    uConect = db.conectar()
+    data = request.get_json()
+
+    id_usuario = data.get('id_usuario')
+    u_password = data.get('u_password')
+    nombre = data.get('nombre')
+    fecha_nacimiento_str = data.get('fecha_nacimiento')
+    fecha_nacimiento = datetime.strptime(fecha_nacimiento_str, "%Y-%m-%d").date()
+    tipo_u = data.get('tipo_u')
+    tipo_sangre = data.get('tipo_sangre')
+    d_especialidad = data.get('d_especialidad')
+    qr_acceso = data.get('qr_acceso')
+
+    newUsuario = Usuario(id_usuario,u_password,nombre,fecha_nacimiento,tipo_u,tipo_sangre,d_especialidad,qr_acceso)
+
+    if not all([id_usuario,u_password,nombre,fecha_nacimiento,tipo_u]):
+
+        return jsonify({'error': 'Faltan datos principales'}), 400
+
+    try:
+
+        entradaUsuario = db.insertar_usuario(uConect,newUsuario)
+        return jsonify({"Mensaje":"Alta de usuario exitoso","Usuario":entradaUsuario}),201
+
+    except Exception as e:
+
+        return jsonify({'error': str(e)}), 500
+
+    finally:
+        print(fecha_nacimiento_str,'\n',fecha_nacimiento)
+        print(newUsuario.__dict__)
+        
+    uConect.close()
 
 
 

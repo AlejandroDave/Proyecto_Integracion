@@ -1,6 +1,7 @@
-import pymysql   # Importamos biblioteca pymysql que nos permitira el manejo de bases de datos MySQL en Python
 import backend.clases.diagnostico
 import backend.clases.usuario
+import pymysql   # Importamos biblioteca pymysql que nos permitira el manejo de bases de datos MySQL en Python
+
 
 '''
 se realiza la conexion con la funcion .connect() en donde nos pedira los datos del host, usuario, contraseña y la base de datos
@@ -51,11 +52,23 @@ def insertar_usuario(conexion,usuario):
 
     with conexion.cursor() as cursor:
 
-        query = "INSERT INTO usuario (id_usuario,u_password,nombre,fecha_nacimiento,tipo_u,d_especialidad,QR_acceso) VALUES(%s,%s,%s,%s,%s,%s,%s)"
-        cursor.execute(query,())
-        usuario = cursror.fetcone(usuario.id_usuario, usuario.u_password, usuario.nombre, usuario.fecha_nacimiento, usuario.tipo_u, usuario.d_especialidad, usuario.QR_acceso)
+        query = """INSERT INTO usuario
+                 (id_usuario,u_password,nombre,fecha_nacimiento,tipo_u,tipo_sangre,d_especialidad,QR_acceso) 
+                    VALUES(%s,%s,%s,%s,%s,%s,%s,%s)"""
+        cursor.execute(query,(usuario.id_usuario,usuario.u_password,usuario.nombre,usuario.fecha_nacimiento,usuario.tipo_u,usuario.tipo_sangre,usuario.d_especialidad,usuario.qr_acceso))
+        conexion.commit()
 
-        return usuario
+        
+        return{
+                "id_usuario": usuario.id_usuario,
+                "u_password": usuario.u_password,
+                "nombre":usuario.nombre,
+                "fecha_nacimiento":usuario.fecha_nacimiento,
+                "tipo_u":usuario.tipo_u,
+                "tipo_sangre": usuario.tipo_sangre,
+                "d_especialidad":usuario.d_especialidad,
+                "qr_acceso": usuario.qr_acceso
+                }
 # 2
 def show_diagnosticos(conexion):
 
