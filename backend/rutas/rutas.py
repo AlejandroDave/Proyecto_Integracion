@@ -1,26 +1,32 @@
+# Dependencias
 from flask import Blueprint, jsonify, request
-from backend.clases.diagnostico import Diagnostico
-from backend.clases.usuario import Usuario
-import backend.data.database as db
 from datetime import datetime
 
-'''
-Utilizando los metodos Blueprint y jsonify se creara el enlace entre el servidor del backend y la base de datos.
-21/06/25: Por el momento se tendra un acceso de manera generar, posteriormente cuando se cree el acceso por medio de usuario se filtrara
-          la informacion que se mostrara.
+# Clases
+from backend.clases.diagnostico import Diagnostico
+from backend.clases.usuario import Usuario
+from backend.clases.resumen import Resumen
+
+# Herramientas
+import backend.herramientas.accesoQR as qrGen
+import backend.herramientas.generadorResumen as gRes
+
+# Conexion con base de datos
+import backend.data.database as db
 
 
-
-'''
-
-
+# Generacion de blueprint que se exportara ala aplicacion backend
 front_bp = Blueprint('inicio',__name__)
 diagnosticos_bp = Blueprint('diagnosticos', __name__)
 usuarios_bp = Blueprint('usuarios', __name__)
 resumenes_bp = Blueprint('resumenes', __name__)
 login_bp = Blueprint('login',__name__)
+loginQR_bp = Blueprint('loginQR',__name__)
 diagnosticoInsert_bp = Blueprint('insertDiag',__name__)
 insertUsuario_bp = Blueprint('insertUser',__name__)
+insertResumen_bp = Blueprint('insertSummary',__name__)
+deleteResumen_bp = Blueprint('deleteSummary',__name__)
+
 
 @front_bp.route('/',methods=['GET'])
 
@@ -50,21 +56,47 @@ def loginUser():
 
         return jsonify({'error': str(e)}), 500
 
+@loginQR_bp.route('/login/QR',methods=['POST'])
+
+def logQR():
+    data = request.get_json()
+    qr_acceso = data.get('qr_acceso')
+
+    conexion = db.conectar()
 
 
-@diagnosticos_bp.route('/diagnosticos', methods=['GET'])
+    if not all([qr_acceso]):
+        return jsonify({'error': 'Faltan datos requeridos'}), 400
+    
+    try:
+
+        usuario = db.show_usuarioQR(conexion,qr_acceso)
+        return jsonify({"mensaje": "Login exitoso", "usuario": usuario}), 200
+
+    except Exception as e:
+
+        return jsonify({'error': str(e)}), 500
+
+@diagnosticos_bp.route('/diagnosticos', methods=['POST'])
 
 def obtener_diagnosticos():
+    data = request.get_json()
+    user_id = data.get('id_usuario')
 
+    if not all([user_id]):
+        return jsonify({'error': 'Faltan datos requeridos'}), 400
+    
     try:
 
         conexion = db.conectar()
-        rDiag = db.show_diagnosticos(conexion)
+        rDiag = db.show_diagnosticos(conexion,user_id)
         conexion.close()
         return jsonify(rDiag)  
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+
 
 @diagnosticoInsert_bp.route('/diagnosticos/entrada',methods=['POST'])
 
@@ -72,13 +104,15 @@ def insertar_diagnostico():
 
     conexion = db.conectar()
     data = request.get_json()
-    id_medico = data.get('id_medico')
+    id_usuario = data.get('id_usuario')
     id_paciente = data.get('id_paciente')
-    diag = data.get('entradaDiag')
+    d_especialidad = data.get('d_especialidad')
+    fecha = data.get('fecha')
+    diag = data.get('entrada')
 
-    newDiag = Diagnostico(id_medico,id_paciente,diag)
+    newDiag = Diagnostico(id_usuario,id_paciente,d_especialidad,fecha,diag)
 
-    if not all([id_medico,id_paciente,diag]):
+    if not all([id_usuario,id_paciente,fecha,diag]):
         return jsonify({'error': 'Faltan datos requeridos'}), 400
 
     
@@ -92,7 +126,7 @@ def insertar_diagnostico():
 
     finally:
 
-        print(newDiag.__dict__)
+        # print(newDiag.__dict__)
         conexion.close()
         
 
@@ -126,9 +160,27 @@ def insertar_usuarios():
     tipo_u = data.get('tipo_u')
     tipo_sangre = data.get('tipo_sangre')
     d_especialidad = data.get('d_especialidad')
-    qr_acceso = data.get('qr_acceso')
+    correo_electronico = data.get('correo_electronico')
+    telefono = data.get('telefono')
+    pad_Cronico = data.get('pad_Cronico')
+    donador_organos = data.get('donador_organos')
+    accede_transfucion = data.get('accede_transfucion')
+    qr_acceso = qrGen.aleatorizacion(id_usuario,nombre,tipo_sangre)
+    qrGen.imagenQR(qr_acceso,id_usuario)
 
-    newUsuario = Usuario(id_usuario,u_password,nombre,fecha_nacimiento,tipo_u,tipo_sangre,d_especialidad,qr_acceso)
+    newUsuario = Usuario(id_usuario,
+                        u_password,
+                        nombre,
+                        fecha_nacimiento,
+                        tipo_u,
+                        tipo_sangre,
+                        d_especialidad,
+                        qr_acceso,
+                        correo_electronico,
+                        telefono,
+                        pad_Cronico,
+                        donador_organos,
+                        accede_transfucion)
 
     if not all([id_usuario,u_password,nombre,fecha_nacimiento,tipo_u]):
 
@@ -140,7 +192,7 @@ def insertar_usuarios():
         return jsonify({"Mensaje":"Alta de usuario exitoso","Usuario":entradaUsuario}),201
 
     except Exception as e:
-
+        print("error de backend: ",e)
         return jsonify({'error': str(e)}), 500
 
     finally:
@@ -151,16 +203,78 @@ def insertar_usuarios():
 
 
 
-@resumenes_bp.route('/resumenes', methods=['GET'])
+@resumenes_bp.route('/resumenes', methods=['POST'])
 
 def obtener_resumenes():
-
     try:
+        data = request.get_json()
+        id_usuario = data.get("id_usuario")
 
-        rTest = db.conectar()
-        rSumm = db.show_resumenes(rTest)
-        rTest.close()
-        return jsonify(rSumm)
+        if not id_usuario:
+            return jsonify({"error": "ID de usuario requerido"}), 400
+
+        conexion = db.conectar()
+        resumenes = db.show_resumenes(conexion,id_usuario)
+        
+        return jsonify(resumenes), 200
 
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({"error": str(e)}), 500
+
+@insertResumen_bp.route('/resumenes/entrada', methods=['POST'])
+def insertar_resumen():
+    try:
+        data = request.get_json()
+        resumen_texto = data.get("resumen")
+        id_usuario = data.get("id_usuario")
+
+
+        if not resumen_texto or not id_usuario:
+            return jsonify({"error": "Resumen e ID de usuario son requeridos"}), 400
+
+        from datetime import date
+        conexion = db.conectar()
+        fecha = str(date.today())
+        
+        nuevoResumen = Resumen(id_usuario, fecha, resumen_texto)
+        resultado = db.insertar_resumen(conexion, nuevoResumen)
+        
+        return jsonify({"guardado": True, "datos": resultado}), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@insertResumen_bp.route('/resumenes/generar', methods=['POST'])
+def generar_resumen():
+    try:
+        data = request.get_json()
+        texto = data.get("texto")
+
+        if not texto:
+            return jsonify({"error": "Texto es requerido"}), 400
+
+        resumen = gRes.generadorResumen(texto)
+
+        return jsonify({"resumen": resumen}), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@deleteResumen_bp.route('/resumenes/eliminar',methods=['POST'])
+def eliminar_resumen():
+    try:
+        data = request.get_json()
+        id_usuario = data.get("id_usuario")
+        fecha = data.get("fecha")
+
+        if not id_usuario or not fecha:
+            return jsonify({"error": "ID de usuario y fecha son requeridos"}), 400
+
+        conexion = db.conectar()
+        resultado = db.delete_resumenes(conexion, id_usuario, fecha)
+
+        return jsonify(resultado), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
